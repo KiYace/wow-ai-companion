@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	nethttp "net/http"
+	"strings"
 )
 
 type SendMessageRequest struct {
@@ -22,6 +23,10 @@ func (r SendMessageRequest) Validate() error {
 	return nil
 }
 
+func (r *SendMessageRequest) Normalize() {
+	r.Message = strings.TrimSpace(r.Message)
+}
+
 func (h *Handler) SendMessage(w nethttp.ResponseWriter, r *nethttp.Request) {
 	var request SendMessageRequest
 
@@ -30,6 +35,8 @@ func (h *Handler) SendMessage(w nethttp.ResponseWriter, r *nethttp.Request) {
 		nethttp.Error(w, "Invalid JSON", nethttp.StatusBadRequest)
 		return
 	}
+
+	request.Normalize()
 
 	err = request.Validate()
 	if err != nil {
