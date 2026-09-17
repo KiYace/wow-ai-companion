@@ -12,13 +12,16 @@ func main() {
 	petService := pet.NewService()
 	handler := apphttp.NewHandler(petService)
 
-	nethttp.HandleFunc("/health", handler.Health)
-	nethttp.HandleFunc("/pet", handler.GetPet)
-	nethttp.HandleFunc("/pet/message", handler.SendMessage)
+	mux := nethttp.NewServeMux()
+
+	mux.HandleFunc("GET /health", handler.Health)
+	mux.HandleFunc("GET /pet", handler.GetPet)
+	mux.HandleFunc("POST /pet/message", handler.SendMessage)
+	mux.HandleFunc("POST /pet/mood", handler.ChangeMood)
 
 	fmt.Println("Server started on :8080")
 
-	err := nethttp.ListenAndServe(":8080", nil)
+	err := nethttp.ListenAndServe(":8080", mux)
 	if err != nil {
 		fmt.Println("Server error:", err)
 	}
