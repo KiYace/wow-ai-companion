@@ -29,6 +29,9 @@ components:
       oneOf:
         - $ref: '#/components/schemas/PlayerReadyEvent'
         - $ref: '#/components/schemas/LocationChangedEvent'
+        - $ref: '#/components/schemas/TargetChangedEvent'
+        - $ref: '#/components/schemas/CombatStartedEvent'
+        - $ref: '#/components/schemas/CombatEndedEvent'
       discriminator:
         propertyName: type
 
@@ -94,3 +97,114 @@ components:
       properties:
         zone:
           type: string
+
+    TargetChangedEvent:
+      type: object
+      required:
+        - type
+        - timestamp
+        - data
+      properties:
+        type:
+          type: string
+          const: target_changed
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          $ref: '#/components/schemas/TargetChangedData'
+
+    TargetChangedData:
+      type: object
+      required:
+        - name
+        - level
+        - type
+        - hostile
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+        type:
+          type: string
+          enum:
+            - player
+            - creature
+            - npc
+        hostile:
+          type: boolean
+
+    CombatStartedEvent:
+      type: object
+      required:
+        - type
+        - timestamp
+        - data
+      properties:
+        type:
+          type: string
+          const: combat_started
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          $ref: '#/components/schemas/CombatStartedData'
+
+    CombatStartedData:
+      type: object
+      required:
+        - target
+      properties:
+        target:
+          $ref: '#/components/schemas/Target'
+
+    Target:
+      type: object
+      required:
+        - name
+        - level
+        - type
+        - hostile
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+        type:
+          type: string
+          enum:
+            - player
+            - creature
+            - npc
+        hostile:
+          type: boolean
+
+    CombatEndedEvent:
+      type: object
+      required:
+        - type
+        - timestamp
+        - data
+      properties:
+        type:
+          type: string
+          const: combat_ended
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          $ref: '#/components/schemas/CombatEndedData'
+
+    CombatEndedData:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: string
+          enum:
+            - victory
+            - defeat
+            - escaped
+            - unknown
