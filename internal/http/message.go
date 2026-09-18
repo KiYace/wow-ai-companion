@@ -32,7 +32,7 @@ func (h *Handler) SendMessage(w nethttp.ResponseWriter, r *nethttp.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		nethttp.Error(w, "Invalid JSON", nethttp.StatusBadRequest)
+		writeError(w, "Invalid JSON", nethttp.StatusBadRequest)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (h *Handler) SendMessage(w nethttp.ResponseWriter, r *nethttp.Request) {
 
 	err = request.Validate()
 	if err != nil {
-		nethttp.Error(w, err.Error(), nethttp.StatusBadRequest)
+		writeError(w, err.Error(), nethttp.StatusBadRequest)
 		return
 	}
 
@@ -48,9 +48,7 @@ func (h *Handler) SendMessage(w nethttp.ResponseWriter, r *nethttp.Request) {
 		Reply: h.petService.RespondTo(request.Message),
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-
-	err = json.NewEncoder(w).Encode(response)
+	err = writeJSON(w, nethttp.StatusOK, response)
 	if err != nil {
 		fmt.Println("Failed to encode response:", err)
 	}

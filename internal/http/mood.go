@@ -26,11 +26,9 @@ func (r *ChangeMoodRequest) Normalize() {
 func (h *Handler) ChangeMood(w nethttp.ResponseWriter, r *nethttp.Request) {
 	var request ChangeMoodRequest
 
-	w.Header().Set("Content-Type", "application/json")
-
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		nethttp.Error(w, "Invalid JSON", nethttp.StatusBadRequest)
+		writeError(w, "Invalid JSON", nethttp.StatusBadRequest)
 		return
 	}
 
@@ -38,14 +36,14 @@ func (h *Handler) ChangeMood(w nethttp.ResponseWriter, r *nethttp.Request) {
 
 	err = request.Validate()
 	if err != nil {
-		nethttp.Error(w, err.Error(), nethttp.StatusBadRequest)
+		writeError(w, err.Error(), nethttp.StatusBadRequest)
 		return
 	}
 
 	h.petService.ChangeMood(request.Mood)
 
-	err = json.NewEncoder(w).Encode(h.petService.GetPet())
+	err = writeJSON(w, nethttp.StatusOK, h.petService.GetPet())
 	if err != nil {
-		nethttp.Error(w, "Failed to encode pet", nethttp.StatusInternalServerError)
+		fmt.Println("Failed to encode pet:", err)
 	}
 }
