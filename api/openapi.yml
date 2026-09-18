@@ -1,0 +1,96 @@
+openapi: 3.1.0
+
+info:
+  title: Azeroth Companion API
+  version: 0.1.0
+  description: API для взаимодействия World of Warcraft Addon с AI-компаньоном.
+
+paths:
+  /events:
+    post:
+      summary: Передать игровое событие
+      operationId: sendGameEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameEvent'
+      responses:
+        '202':
+          description: Событие принято
+        '400':
+          description: Некорректное событие
+
+components:
+  schemas:
+
+    GameEvent:
+      oneOf:
+        - $ref: '#/components/schemas/PlayerReadyEvent'
+        - $ref: '#/components/schemas/LocationChangedEvent'
+      discriminator:
+        propertyName: type
+
+    PlayerReadyEvent:
+      type: object
+      required:
+        - type
+        - timestamp
+        - data
+      properties:
+        type:
+          type: string
+          const: player_ready
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          $ref: '#/components/schemas/PlayerReadyData'
+
+    PlayerReadyData:
+      type: object
+      required:
+        - name
+        - level
+        - class
+        - race
+        - faction
+        - zone
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+        class:
+          type: string
+        race:
+          type: string
+        faction:
+          type: string
+        zone:
+          type: string
+
+    LocationChangedEvent:
+      type: object
+      required:
+        - type
+        - timestamp
+        - data
+      properties:
+        type:
+          type: string
+          const: location_changed
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          $ref: '#/components/schemas/LocationChangedData'
+
+    LocationChangedData:
+      type: object
+      required:
+        - zone
+      properties:
+        zone:
+          type: string
